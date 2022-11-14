@@ -2,39 +2,29 @@ import { useEffect,useState, useRef} from "react";
 import { useParams } from "react-router-dom";
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-
-/*
-attempt at redux
-
-import handlePhotoReducer from '../../features/handlePhotos.slice'
+import {setCategoryModal} from '../../features/handleCategoryModal.slice'
+import {setImageModal} from '../../features/handleImageModal.slice'
 import { useDispatch, useSelector } from 'react-redux'
-*/
+
 
 import './home.css'
 const Home = ()=>{
 
     
-    /*
-    attempt at redux
-    
+        
+    const categoryModal = useSelector(state => state.handleCategoryModal.value)
+    const imageModal = useSelector(state => state.handleImageModal.value)   
     const dispatch = useDispatch();
-    const handlePhotos = useSelector(state => state.handlePhotos.value)
-    */
+    
+    const closeCategoryModal = () => dispatch(setCategoryModal(false));
+    const openCategoryModal = () => dispatch(setCategoryModal(true))
+    const closeImageModal = () => dispatch(setImageModal(false));
 
 
-    //maybe I should have used useReducer here to begin with, 
-   //but I thought converting the project to redux at the end would be smarter.
-   //It wasnt, as I didnt manage to convert it on time
 
-    //used in he button that shows the modal for the category
-    const [showCategoryModal, setShowCategoryModal] = useState(false);
-    const CloseCategoryModal = () => setShowCategoryModal(false);
-    const ShowCategoryModal = () => setShowCategoryModal(true);
-       
-    //same as above but for the image modal
-    const [showImageModal, setShowImageModal] = useState(false);
-    const CloseImageModal = () => setShowImageModal(false);
-   
+
+
+
     //holds the data of all the photos
     const [photosData, SetPhotosData] = useState([])
 
@@ -121,14 +111,18 @@ const Home = ()=>{
         //resets page back to 1
         currentPage.current = 1
         getAll();
-        setShowCategoryModal(false);
+
+        // setShowCategoryModal(false);
+        dispatch(setCategoryModal(false))
     }
 
     const displaySinglePhotoData = (event) =>{
         setSinglePhotoData(
                 //find a photo based on its URL
                 photosData.find(id=>id.largeImageURL === event.target.src))
-        setShowImageModal(true)
+
+        // setShowImageModal(true)
+        dispatch(setImageModal(true))
     }
 
     return(
@@ -137,7 +131,7 @@ const Home = ()=>{
 
         <Button onClick={getPrevPage}>Prev</Button>
         
-        <Button variant="primary" onClick={ShowCategoryModal}>
+        <Button variant="primary" onClick={openCategoryModal}>
         Choose Category
         </Button>
 
@@ -146,7 +140,7 @@ const Home = ()=>{
         </div>
                 
 
-        <Modal show={showCategoryModal} onHide={CloseCategoryModal}>
+        <Modal show={categoryModal} onHide={closeCategoryModal}>
             <Modal.Header closeButton>
             <Modal.Title>Choose a category</Modal.Title>
             </Modal.Header>
@@ -195,7 +189,7 @@ const Home = ()=>{
 
         {/* shows relevant data. 
         I could show all of data by converting the singlePhotoData object to an array and mapping through it but I thought it wasnt necessary */}
-        <Modal show={showImageModal} onHide={CloseImageModal}>
+        <Modal show={imageModal} onHide={closeImageModal}>
             <Modal.Header closeButton>
             <Modal.Title>Details</Modal.Title>
             </Modal.Header>
