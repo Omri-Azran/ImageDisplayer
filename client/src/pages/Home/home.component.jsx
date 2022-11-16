@@ -2,8 +2,10 @@ import { useEffect,useState, useRef} from "react";
 import { useParams } from "react-router-dom";
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-import {setCategoryModal} from '../../features/handleCategoryModal.slice'
-import {setImageModal} from '../../features/handleImageModal.slice'
+import { setCategoryModal } from '../../features/handleCategoryModal.slice'
+import { setImageModal } from '../../features/handleImageModal.slice'
+import { setPhotosData } from "../../features/handlePhotos.slice";
+import { setSinglePhoto } from "../../features/handleSinglePhoto.slice";
 import { useDispatch, useSelector } from 'react-redux'
 
 
@@ -11,31 +13,28 @@ import './home.css'
 const Home = ()=>{
 
     
-        
+    //states of the different modals
     const categoryModal = useSelector(state => state.handleCategoryModal.value)
     const imageModal = useSelector(state => state.handleImageModal.value)   
+
+    //a collection of all the photos
+    const photosData = useSelector(state => state.handlePhotosData.value)
+
+    //a collection of all the data of a single photo
+    const singlePhoto = useSelector(state => state.handleSinglePhoto.value)
+
     const dispatch = useDispatch();
     
-    const closeCategoryModal = () => dispatch(setCategoryModal(false));
+    //functions to close/open said modals
+    const closeCategoryModal = () => dispatch(setCategoryModal(false))
     const openCategoryModal = () => dispatch(setCategoryModal(true))
-    const closeImageModal = () => dispatch(setImageModal(false));
-
-
-
-
-
-
-    //holds the data of all the photos
-    const [photosData, SetPhotosData] = useState([])
-
-    //holds the data of a single photos, after being extracted from PhotosData
-    const [singlePhotoData, setSinglePhotoData] = useState([])
-    
+    const closeImageModal = () => dispatch(setImageModal(false))
     
     const params = useParams();
     
     //holds the page consistently between renders
     const currentPage = useRef(1);
+
     //assign it to a query param named "page"
     params.page = currentPage;
     
@@ -57,15 +56,10 @@ const Home = ()=>{
             }
             const responseObj = await response.json();
             const allPhotosData = responseObj.data
-            
-            SetPhotosData(allPhotosData)
-            
-            console.log(allPhotosData);
-            /*
-            attempt at redux
+                       
+            dispatch(setPhotosData(allPhotosData))
 
-            dispatch(allPhotosData)
-            */
+
         
         } 
         catch (error) {
@@ -111,17 +105,14 @@ const Home = ()=>{
         //resets page back to 1
         currentPage.current = 1
         getAll();
-
-        // setShowCategoryModal(false);
         dispatch(setCategoryModal(false))
     }
 
     const displaySinglePhotoData = (event) =>{
-        setSinglePhotoData(
+        dispatch(setSinglePhoto(
                 //find a photo based on its URL
-                photosData.find(id=>id.largeImageURL === event.target.src))
+                photosData.find(id=>id.largeImageURL === event.target.src)))
 
-        // setShowImageModal(true)
         dispatch(setImageModal(true))
     }
 
@@ -194,19 +185,19 @@ const Home = ()=>{
             <Modal.Title>Details</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-            Id: {singlePhotoData.id}
+            Id: {singlePhoto.id}
             <br/>
-               Tags: {singlePhotoData.tags}
+               Tags: {singlePhoto.tags}
             <br/>
-               Views: {singlePhotoData.views}
+               Views: {singlePhoto.views}
             <br/>
-               Downloads: {singlePhotoData.downloads}
+               Downloads: {singlePhoto.downloads}
             <br/>
-               Collections: {singlePhotoData.collections}
+               Collections: {singlePhoto.collections}
             <br/>
-               Likes: {singlePhotoData.likes}
+               Likes: {singlePhoto.likes}
             <br/>
-               Comments : {singlePhotoData.comments}      
+               Comments : {singlePhoto.comments}      
             <br/>
             </Modal.Body>
 
